@@ -1,9 +1,11 @@
 using BookIt.API.Data;
 using BookIt.API.Mappings;
 using BookIt.API.Repositories;
+using BookIt.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -55,11 +57,14 @@ builder.Services.AddScoped<IBookingRepository,SQLBookingRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRespository>();
 builder.Services.AddScoped<ICurrentUserRepository, SQLCurrentUserRepository>();
 
+builder.Services.AddTransient<IEmailSender,EmailSender>();
+
 // To use automapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 builder.Services.AddIdentityCore<IdentityUser>()
     .AddRoles<IdentityRole>()
+    .AddSignInManager()
     .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("BookIt")
     .AddEntityFrameworkStores<BookItAuthDbContext>()
     .AddDefaultTokenProviders();
@@ -78,13 +83,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer=true,
-        ValidateAudience=true,
-        ValidateLifetime=true,
-        ValidateIssuerSigningKey=true,
-        ValidIssuer=builder.Configuration["Jwt:Issuer"],
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:key"])),
     });
 
 var app = builder.Build();

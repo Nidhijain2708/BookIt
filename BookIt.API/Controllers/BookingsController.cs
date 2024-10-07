@@ -27,6 +27,7 @@ namespace BookIt.API.Controllers
             this.userManager = userManager;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
