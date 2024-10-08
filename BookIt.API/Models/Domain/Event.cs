@@ -19,9 +19,9 @@ namespace BookIt.API.Models.Domain
 
         public TimeOnly end_time { get; set; }
 
-        //public int capacity { get; set; }
+        public int capacity { get; set; }
 
-        //public int available_tickets { get; set; }
+        public int available_tickets { get; set; }
 
         public double price { get; set; }
 

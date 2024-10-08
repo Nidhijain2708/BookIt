@@ -4,6 +4,7 @@ using BookIt.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookIt.API.Migrations
 {
     [DbContext(typeof(BookItDbContext))]
-    partial class BookItDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241007034437_Adding Event with date before today")]
+    partial class AddingEventwithdatebeforetoday
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,12 +63,6 @@ namespace BookIt.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("available_tickets")
-                        .HasColumnType("int");
-
-                    b.Property<int>("capacity")
-                        .HasColumnType("int");
-
                     b.Property<string>("category")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -102,8 +99,6 @@ namespace BookIt.API.Migrations
                         {
                             event_id = new Guid("9443d1cc-c761-4984-a1a8-837adfde4387"),
                             artist = "Parmish Verma",
-                            available_tickets = 250,
-                            capacity = 250,
                             category = "Festive celebration",
                             date = new DateOnly(2024, 10, 1),
                             description = "Diwali Celebration",

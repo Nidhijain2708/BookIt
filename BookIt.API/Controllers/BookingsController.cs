@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace BookIt.API.Controllers
@@ -77,14 +78,23 @@ namespace BookIt.API.Controllers
             booking.UserId = parsedUserId;
 
             booking =await bookingRepository.BookATicketAsync(booking);
+            if(booking == null)
+            {
+                var eventTicketBookedFor =await eventRepository.GetByIdAsync(addBookingRequestDto.EventId);
+                var ticketsAvailable = eventTicketBookedFor.available_tickets;
+                return BadRequest(new BookingFailedDto()
+                {
+                    message = $"Can't book {addBookingRequestDto.number_of_tickets}, tickets left: {ticketsAvailable}"
+                });
+            }
 
             // return this booking domain after changing it to dto
             var bookingDto=mapper.Map<BookingDto>(booking);
             return CreatedAtAction(nameof(GetById),new { id=bookingDto.booking_id},bookingDto);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteBooking([FromBody] Guid booking_id)
+        [HttpDelete("{booking_id}")]
+        public async Task<IActionResult> DeleteBooking(Guid booking_id)
         {
             var resBooking=await bookingRepository.DeleteBookingAsync(booking_id);
 
@@ -94,6 +104,26 @@ namespace BookIt.API.Controllers
             }
 
             return Ok(mapper.Map<BookingDto>(resBooking));
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateBooking([FromBody] UpdateBookingRequestDto updateBookingRequestDto)
+        {
+            var resBooking = await bookingRepository.UpdateBookingAsync(updateBookingRequestDto);
+            
+            if (resBooking == null)
+            {
+                var currBooking = await bookingRepository.GetByIdAsync(updateBookingRequestDto.booking_id);
+                var eventTicketUpdatedFor = await eventRepository.GetByIdAsync(currBooking.EventId);
+
+                return BadRequest($"No booking found or Number of available tickets are: {eventTicketUpdatedFor.available_tickets} and you are trying to book extra: {updateBookingRequestDto.number_of_tickets-currBooking.number_of_tickets} tickets");
+            }
+
+            var response = new UpdateBookingResponseDto(){
+                message = "Update Success"
+            };
+
+            return Ok(response);
         }
     }
 }

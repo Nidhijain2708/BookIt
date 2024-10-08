@@ -24,16 +24,18 @@ namespace BookIt.API.Data
             {
                 new Event()
                 {
-                    event_id=Guid.Parse("f09ce828-2207-4927-be79-459bf96ee99f"),
-                    event_name="Comedy Nights",
-                    description="Laughter therapy",
-                    location="Noida",
-                    date=new DateOnly(2024,10,10),
+                    event_id=Guid.Parse("9443d1cc-c761-4984-a1a8-837adfde4387"),
+                    event_name="Pre-Diwali Bash",
+                    description="Diwali Celebration",
+                    location="Delhi",
+                    date=new DateOnly(2024,10,1),
                     start_time=new TimeOnly(9,0,0),
                     end_time=new TimeOnly(10,0,0),
-                    price=2000,
-                    artist="Gaurav Kapoor",
-                    category="Comedy Shows"
+                    capacity=250,
+                    available_tickets=250,
+                    price=1000,
+                    artist="Parmish Verma",
+                    category="Festive celebration"
                 }
             };
 

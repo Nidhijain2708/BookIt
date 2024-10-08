@@ -38,7 +38,7 @@ namespace BookIt.API.Controllers
                 Email = registerRequestDto.Email,
                 PhoneNumber = registerRequestDto.PhoneNumber,
                 Id = registerRequestDto.Id.ToString(),
-                //TwoFactorEnabled = true
+                TwoFactorEnabled = true
             };
 
             var identityResult=await userManager.CreateAsync(identityUser,registerRequestDto.Password);
