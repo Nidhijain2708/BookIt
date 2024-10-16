@@ -43,5 +43,28 @@ namespace BookIt.API.Controllers
             var eventDomain = await eventRepository.GetByIdAsync(id);
             return Ok(mapper.Map<EventDto>(eventDomain));
         }
+
+        [HttpGet]
+        [Route("GetByFilter")]
+        public async Task<IActionResult> GetByFilter([FromQuery] string? filterOn, [FromQuery] string? filterQuery1, [FromQuery] string? filterQuery2)
+        {
+            var eventsModel=await eventRepository.GetByFilterAsync(filterOn, filterQuery1, filterQuery2);
+
+            if(eventsModel == null)
+            {
+                return BadRequest("Filter by date or category, while in date provide range of date.");
+            }
+
+            return Ok(mapper.Map<List<EventDto>>(eventsModel));
+        }
+
+        [HttpGet]
+        [Route("GetBySort")]
+        public async Task<IActionResult> GetBySort([FromQuery] string? sortBy, [FromQuery] bool? isAscending)
+        {
+            var eventsModel = await eventRepository.GetBySortAsync(sortBy,isAscending);
+
+            return Ok(mapper.Map<List<EventDto>>(eventsModel));
+        }
     }
 }
