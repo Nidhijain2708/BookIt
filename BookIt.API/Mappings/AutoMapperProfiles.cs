@@ -12,6 +12,7 @@ namespace BookIt.API.Mappings
             CreateMap<AddBookingRequestDto, Booking>().ReverseMap();
             CreateMap<BookingDto, Booking>().ReverseMap();
             CreateMap<UserDto, User>().ReverseMap();
+            CreateMap<AddEventRequestDto, Event>().ReverseMap();
         }
     }
 }

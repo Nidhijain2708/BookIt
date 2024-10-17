@@ -1,15 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
-namespace BookIt.API.Models.Domain
+namespace BookIt.API.Models.DTO
 {
-    public class Event
+    public class AddEventRequestDto
     {
-        [Key]
-        public Guid event_id { get; set; }
+        [JsonIgnore]
+        public Guid event_id { get; set; }=Guid.NewGuid();
 
+        [StringLength(100)]
         public string event_name { get; set; }
 
+        [StringLength(2000)]
         public string? description { get; set; }
 
         public string location { get; set; }
@@ -30,6 +32,8 @@ namespace BookIt.API.Models.Domain
 
         public string category { get; set; }
 
-        public string[] filePaths { get; set; }
+        public List<IFormFile> images { get; set; }
+
+        public string[] fileNames { get; set; }
     }
 }

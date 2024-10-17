@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using BookIt.API.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using BookIt.API.Models.Domain;
+using MimeKit;
+using Org.BouncyCastle.Utilities;
 
 namespace BookIt.API.Controllers
 {
@@ -15,11 +18,15 @@ namespace BookIt.API.Controllers
     {
         private readonly IEventRepository eventRepository;
         private readonly IMapper mapper;
+        private readonly BookItDbContext dbContext;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
-        public EventsController(IEventRepository eventRepository, IMapper mapper) 
+        public EventsController(IEventRepository eventRepository, IMapper mapper,BookItDbContext dbContext,IWebHostEnvironment webHostEnvironment) 
         {
             this.eventRepository = eventRepository;
             this.mapper = mapper;
+            this.dbContext = dbContext;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         //[Authorize]
@@ -65,6 +72,24 @@ namespace BookIt.API.Controllers
             var eventsModel = await eventRepository.GetBySortAsync(sortBy,isAscending);
 
             return Ok(mapper.Map<List<EventDto>>(eventsModel));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateEvent([FromForm] AddEventRequestDto addEventRequestDto)
+        {
+            try
+            {
+                var createdEvent = await eventRepository.CreateEventAsync(addEventRequestDto);
+                return Ok(mapper.Map<EventDto>(createdEvent));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the event.");
+            }
         }
     }
 }

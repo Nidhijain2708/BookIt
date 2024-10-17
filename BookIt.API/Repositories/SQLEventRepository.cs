@@ -1,5 +1,7 @@
-﻿using BookIt.API.Data;
+﻿using AutoMapper;
+using BookIt.API.Data;
 using BookIt.API.Models.Domain;
+using BookIt.API.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 
@@ -8,10 +10,12 @@ namespace BookIt.API.Repositories
     public class SQLEventRepository : IEventRepository
     {
         private readonly BookItDbContext dbContext;
+        private readonly IMapper mapper;
 
-        public SQLEventRepository(BookItDbContext dbContext)
+        public SQLEventRepository(BookItDbContext dbContext,IMapper mapper)
         {
             this.dbContext = dbContext;
+            this.mapper = mapper;
         }
 
         public async Task<List<Event>> GetAllAsync()
@@ -79,6 +83,42 @@ namespace BookIt.API.Repositories
             }
 
             return events;
+        }
+
+        public async Task<Event> CreateEventAsync(AddEventRequestDto addEventRequestDto)
+        {
+            var eventDomain = mapper.Map<Event>(addEventRequestDto);
+
+            string[] categoryList = new[] { "Music", "Theater", "Comedy", "Sports", "Conference", "Workshop", "Food Fest", "Game", "Acting", "Competition" };
+            if (!categoryList.Contains(eventDomain.category))
+            {
+                throw new ArgumentException("Category Should be from the predefined list [\"Music\", \"Theater\", \"Comedy\", \"Sports\", \"Conference\", \"Workshop\", \"Food Fest\", \"Game\", \"Acting\", \"Competition\"].");
+            }
+
+            List<string> filePaths = new List<string>();
+            int i = 0;
+            foreach (var image in addEventRequestDto.images)
+            {
+                if (image.Length > 5000000)
+                {
+                    throw new ArgumentException("Image size more than 5MB, All images should be smaller than 5MB.");
+                }
+
+                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(addEventRequestDto.fileNames[i].Replace(" ", "_"))}";
+                var localFilePath = Path.Combine(imagesFolder, uniqueFileName);
+                i++;
+                filePaths.Add($"/Images/{uniqueFileName}");
+                
+                using var stream = new FileStream(localFilePath, FileMode.Create);
+                await image.CopyToAsync(stream);
+            }
+            eventDomain.filePaths = filePaths.ToArray();
+
+            await dbContext.Events.AddAsync(eventDomain);
+            await dbContext.SaveChangesAsync();
+
+            return eventDomain;
         }
     }
 }
