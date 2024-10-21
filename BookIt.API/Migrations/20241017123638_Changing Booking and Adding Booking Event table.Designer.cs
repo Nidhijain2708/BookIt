@@ -4,6 +4,7 @@ using BookIt.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookIt.API.Migrations
 {
     [DbContext(typeof(BookItDbContext))]
-    partial class BookItDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241017123638_Changing Booking and Adding Booking Event table")]
+    partial class ChangingBookingandAddingBookingEventtable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,26 +31,42 @@ namespace BookIt.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("booking_dateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("number_of_tickets")
-                        .HasColumnType("int");
-
                     b.Property<double>("total_price")
                         .HasColumnType("float");
 
                     b.HasKey("booking_id");
 
-                    b.HasIndex("EventId");
-
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("BookIt.API.Models.Domain.Booking_Event", b =>
+                {
+                    b.Property<Guid>("bookingEvent_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("bookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("eventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("number_of_tickets")
+                        .HasColumnType("int");
+
+                    b.HasKey("bookingEvent_id");
+
+                    b.HasIndex("bookingId");
+
+                    b.HasIndex("eventId");
+
+                    b.ToTable("Booking_Events");
                 });
 
             modelBuilder.Entity("BookIt.API.Models.Domain.Event", b =>
@@ -102,56 +121,21 @@ namespace BookIt.API.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("BookIt.API.Models.Domain.User", b =>
+            modelBuilder.Entity("BookIt.API.Models.Domain.Booking_Event", b =>
                 {
-                    b.Property<Guid>("user_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("first_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("last_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("phone_number")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("preferred_currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("preferred_language")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("profile_pic_path")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("user_id");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("BookIt.API.Models.Domain.Booking", b =>
-                {
-                    b.HasOne("BookIt.API.Models.Domain.Event", "Event")
+                    b.HasOne("BookIt.API.Models.Domain.Booking", "Booking")
                         .WithMany()
-                        .HasForeignKey("EventId")
+                        .HasForeignKey("bookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("BookIt.API.Models.Domain.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("eventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
 
                     b.Navigation("Event");
                 });

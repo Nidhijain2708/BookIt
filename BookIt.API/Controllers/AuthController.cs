@@ -1,4 +1,5 @@
 ﻿using Azure;
+using BookIt.API.Data;
 using BookIt.API.Models.Domain;
 using BookIt.API.Models.DTO;
 using BookIt.API.Repositories;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BookIt.API.Controllers
 {
@@ -18,23 +20,25 @@ namespace BookIt.API.Controllers
         private readonly ITokenRepository tokenRepository;
         private readonly IEmailSender emailSender;
         private readonly SignInManager<IdentityUser> signInManager;
+        private readonly BookItDbContext dbContext;
 
-        public AuthController(UserManager<IdentityUser> userManager,ITokenRepository tokenRepository,IEmailSender emailSender,SignInManager<IdentityUser> signInManager)
+        public AuthController(UserManager<IdentityUser> userManager,ITokenRepository tokenRepository,IEmailSender emailSender,SignInManager<IdentityUser> signInManager, BookItDbContext dbContext)
         {
             this.userManager = userManager;
             this.tokenRepository = tokenRepository;
             this.emailSender = emailSender;
             this.signInManager = signInManager;
+            this.dbContext = dbContext;
         }
 
         // POST: /api/Auth/Register
         [HttpPost]
         [Route("Register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
+        public async Task<IActionResult> Register([FromForm] RegisterRequestDto registerRequestDto)
         {
             var identityUser = new IdentityUser
             {
-                UserName = registerRequestDto.UserName,
+                UserName = registerRequestDto.FirstName,
                 Email = registerRequestDto.Email,
                 PhoneNumber = registerRequestDto.PhoneNumber,
                 Id = registerRequestDto.Id.ToString(),
@@ -52,6 +56,33 @@ namespace BookIt.API.Controllers
                 {
                     message = "User was registered! Please login."
                 };
+
+                // Create User in BookITDb as well
+                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(registerRequestDto.FileName.Replace(" ", "_"))}";
+                var localFilePath = Path.Combine(imagesFolder, uniqueFileName);
+
+                using var stream = new FileStream(localFilePath, FileMode.Create);
+                await registerRequestDto.ProfilePicture.CopyToAsync(stream);
+
+                var dbUser = new User()
+                {
+                    user_id = registerRequestDto.Id,
+                    first_name = registerRequestDto.FirstName,
+                    last_name = registerRequestDto.LastName,
+                    email = registerRequestDto.Email,
+                    phone_number = registerRequestDto.PhoneNumber,
+                    password = registerRequestDto.Password,
+                    preferred_currency = registerRequestDto.PreferredCurrency,
+                    preferred_language = registerRequestDto.PreferredLanguage,
+                    profile_pic_path= $"/Images/{uniqueFileName}"
+                };
+
+                
+
+                await dbContext.Users.AddAsync(dbUser);
+                await dbContext.SaveChangesAsync();
+
                 return Ok(response);
             }
 

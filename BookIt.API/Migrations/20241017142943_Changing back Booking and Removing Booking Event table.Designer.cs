@@ -4,6 +4,7 @@ using BookIt.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookIt.API.Migrations
 {
     [DbContext(typeof(BookItDbContext))]
-    partial class BookItDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241017142943_Changing back Booking and Removing Booking Event table")]
+    partial class ChangingbackBookingandRemovingBookingEventtable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,49 +103,6 @@ namespace BookIt.API.Migrations
                     b.HasKey("event_id");
 
                     b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("BookIt.API.Models.Domain.User", b =>
-                {
-                    b.Property<Guid>("user_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("first_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("last_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("phone_number")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("preferred_currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("preferred_language")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("profile_pic_path")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("user_id");
-
-                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("BookIt.API.Models.Domain.Booking", b =>

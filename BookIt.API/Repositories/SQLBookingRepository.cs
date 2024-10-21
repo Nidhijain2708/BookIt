@@ -21,7 +21,10 @@ namespace BookIt.API.Repositories
             if ((eventTicketBookedFor.available_tickets - booking.number_of_tickets) >= 0)
             {
                 eventTicketBookedFor.available_tickets = (eventTicketBookedFor.available_tickets - booking.number_of_tickets);
-                
+
+                // Save the updated event (important!)
+                dbContext.Events.Update(eventTicketBookedFor); // Ensure the event is updated in the context
+
                 await dbContext.Bookings.AddAsync(booking);
                 await dbContext.SaveChangesAsync();
 
