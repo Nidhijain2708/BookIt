@@ -4,6 +4,7 @@ using BookIt.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookIt.API.Migrations
 {
     [DbContext(typeof(BookItDbContext))]
-    partial class BookItDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241107024801_Payment table added")]
+    partial class Paymenttableadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,6 +139,8 @@ namespace BookIt.API.Migrations
 
                     b.HasKey("payment_id");
 
+                    b.HasIndex("BookingId");
+
                     b.HasIndex("EventId");
 
                     b.HasIndex("UserId");
@@ -199,6 +204,12 @@ namespace BookIt.API.Migrations
 
             modelBuilder.Entity("BookIt.API.Models.Domain.Payment", b =>
                 {
+                    b.HasOne("BookIt.API.Models.Domain.Booking", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BookIt.API.Models.Domain.Event", "Event")
                         .WithMany()
                         .HasForeignKey("EventId")
@@ -210,6 +221,8 @@ namespace BookIt.API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Booking");
 
                     b.Navigation("Event");
 

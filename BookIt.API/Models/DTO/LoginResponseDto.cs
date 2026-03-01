@@ -2,6 +2,6 @@
 {
     public class LoginResponseDto
     {
-        public string JwtToken { get; set; }
+        public string message { get; set; }
     }
 }

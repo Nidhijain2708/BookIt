@@ -42,7 +42,7 @@ namespace BookIt.API.Controllers
                 Email = registerRequestDto.Email,
                 PhoneNumber = registerRequestDto.PhoneNumber,
                 Id = registerRequestDto.Id.ToString(),
-                //TwoFactorEnabled = true
+                TwoFactorEnabled = true
             };
 
             var identityResult=await userManager.CreateAsync(identityUser,registerRequestDto.Password);
@@ -50,7 +50,7 @@ namespace BookIt.API.Controllers
             if(identityResult.Succeeded)
             {
                 await userManager.AddClaimAsync(identityUser, new Claim(ClaimTypes.NameIdentifier, identityUser.Id));
-                //await userManager.AddClaimAsync(identityUser, new Claim(ClaimTypes.Email, identityUser.Email));
+                await userManager.AddClaimAsync(identityUser, new Claim(ClaimTypes.Email, identityUser.Email));
                 //return Ok("User was registered! Please login.");
                 var response = new RegisterResponseDto
                 {
@@ -107,18 +107,13 @@ namespace BookIt.API.Controllers
 
                         await emailSender.SendEmailAsync(user.Email, "OTP Confrimation", token);
 
-                        return Ok($"We have sent an OTP to your Email {user.Email}");
+                        var response = new LoginResponseDto
+                        {
+                            message = $"We have sent an OTP to your Email {user.Email}"
+                        };
+
+                        return Ok(response);
                     }
-
-                    // Create Token
-                    var jwtToken=tokenRepository.createJWTToken(user);
-
-                    var response = new LoginResponseDto
-                    {
-                        JwtToken = jwtToken
-                    };
-
-                    return Ok(response);
                 }
             }
             return BadRequest("Email or password incorrect");
@@ -126,18 +121,18 @@ namespace BookIt.API.Controllers
 
         [HttpPost]
         [Route("Login-2FA")]
-        public async Task<IActionResult> LoginWithOTP(string code, string email)
+        public async Task<IActionResult> LoginWithOTP([FromBody] LoginWithOTPRequestDto loginWithOTPRequestDto)
         {
-            var user = await userManager.FindByEmailAsync(email);
+            var user = await userManager.FindByEmailAsync(loginWithOTPRequestDto.email);
             if (user != null)
             {
-                var result = await userManager.VerifyTwoFactorTokenAsync(user, "Email", code);
+                var result = await userManager.VerifyTwoFactorTokenAsync(user, "Email", loginWithOTPRequestDto.code);
                 if (result)
                 {
                     // Create Token
                     var jwtToken = tokenRepository.createJWTToken(user);
 
-                    var response = new LoginResponseDto
+                    var response = new LoginWithOTPResponseDto
                     {
                         JwtToken = jwtToken
                     };
@@ -145,7 +140,7 @@ namespace BookIt.API.Controllers
                     return Ok(response);
                 }
             }
-            return BadRequest("OTP incorrect");
+            return BadRequest("OTP or Email incorrect.");
         }
 
         [HttpPost]

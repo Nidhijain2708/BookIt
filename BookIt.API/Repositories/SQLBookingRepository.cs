@@ -81,6 +81,7 @@ namespace BookIt.API.Repositories
 
                 Booking.number_of_tickets = updateBookingRequestDto.number_of_tickets;
                 Booking.total_price = updateBookingRequestDto.number_of_tickets * (eventTicketUpdatedFor.price);
+                Booking.total_price=Booking.total_price + (Booking.total_price*0.05);
                 await dbContext.SaveChangesAsync();
             }
             else if (updateBookingRequestDto.number_of_tickets == 0)

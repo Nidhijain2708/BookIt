@@ -57,10 +57,10 @@ builder.Services.AddScoped<IEventRepository,SQLEventRepository>();
 builder.Services.AddScoped<IBookingRepository,SQLBookingRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRespository>();
 builder.Services.AddScoped<ICurrentUserRepository, SQLCurrentUserRepository>();
+builder.Services.AddScoped<IPaymentRepository, SQLPaymentRepository>();
 
 builder.Services.AddTransient<IEmailSender,EmailSender>();
 
-// To use automapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 builder.Services.AddIdentityCore<IdentityUser>()

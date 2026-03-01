@@ -54,6 +54,7 @@ namespace BookIt.API.Controllers
 
             // calculate total price
             var total_price = addBookingRequestDto.number_of_tickets * eventDto.price;
+            total_price = total_price + (total_price*0.05);
 
             Booking booking=mapper.Map<Booking>(addBookingRequestDto);
 
